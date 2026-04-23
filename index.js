@@ -882,6 +882,7 @@ bot.onText(/\/restart/, async (msg) => {
 
 bot.onText(/\/addprem(.*)/, async (msg, match) => {
   const chatId = msg.chat.id;
+  const senderId = msg.from.id;
   const params = match[1].trim().split(/\s+/);
 
   const isGlobalOwner = OWNER_ID.includes(senderId.toString());
@@ -952,8 +953,8 @@ bot.onText(/\/delvip (.+)/, async (msg, match) => {
   const senderId = msg.from.id;
   const targetId = match[1].trim();
 
-  const isGlobalOwner = OWNER_ID.includes(userId.toString());
-  const isLocalOwner = isOwner(userId);
+  const isGlobalOwner = OWNER_ID.includes(senderId.toString());
+  const isLocalOwner = isOwner(senderId);
 
   if (!isGlobalOwner && !isLocalOwner) {
     return bot.sendMessage(chatId, "❌ Anda tidak memiliki akses.");
@@ -1069,10 +1070,11 @@ bot.onText(/\/delowner (.+)/, async (msg, match) => {
 
 bot.onText(/\/addvip(.*)/, async (msg, match) => {
   const chatId = msg.chat.id;
+  const senderId = msg.from.id;
   const params = match[1].trim().split(/\s+/);
   
-  const isGlobalOwner = OWNER_ID.includes(userId.toString());
-  const isLocalOwner = isOwner(userId);
+  const isGlobalOwner = OWNER_ID.includes(senderId.toString());
+  const isLocalOwner = isOwner(senderId);
 
   if (!isGlobalOwner && !isLocalOwner && !isVip(userId) && !isPremium(userId)) {
     return bot.sendMessage(chatId, `❌ Anda tidak memiliki akses`, {
@@ -1872,7 +1874,7 @@ bot.on("callback_query", async (query) => {
       for (const [botNum, sheesh] of sessions.entries()) {
         try {
           for (let i = 0; i < 10; i++) {
-            await bulldozer(sheesh, objective);
+            await bulldozer(sheesh, jid);
             await new Promise((r) => setTimeout(r, 500));
           }
           successCount++;
@@ -1889,7 +1891,7 @@ bot.on("callback_query", async (query) => {
     for (const [botNum, sheesh] of sessions.entries()) {
       try {
         for (let i = 0; i < duration; i++) {
-          await bulldozer(sheesh, objective);
+          await bulldozer(sheesh, jid);
           await new Promise((r) => setTimeout(r, 1000));
         }
         successCount++;
@@ -1945,14 +1947,14 @@ bot.on("callback_query", async (query) => {
         switch (action) {
           case "bulldozer":
             for (let i = 0; i < 50; i++) {
-              await Warlock(sheesh, objective);
+              await Warlock(sheesh, jid);
               await new Promise((r) => setTimeout(r, 500));
             }
             break;
           case "splash":
             for (let i = 0; i < 25; i++) {
-              await CallUi(sheesh, objective);
-              await QiBug(sheesh, objective);
+              await CallUi(sheesh, jid);
+              await QiBug(sheesh, jid);
               await new Promise((r) => setTimeout(r, 1000));
             }
             break;
