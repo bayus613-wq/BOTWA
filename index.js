@@ -255,6 +255,8 @@ function isPremium(userId) {
   return premiumData[userId].expiry > Date.now();
 }
 
+function removePremiumUser(userId) {  const premiumData = loadPremiumData();  if (!premiumData[userId]) return false;  delete premiumData[userId];  savePremiumData(premiumData);  return true;}
+
 function addPremiumDuration(duration) {
   const durations = {
     h: 60 * 60 * 1000,
@@ -307,9 +309,6 @@ function handleOnlyAccess(msg, commandInput, accessType) {
     { parse_mode: "Markdown" }
   );
 }
-
-startBot();
-
 
 // --- Fungsi untuk Memuat Daftar Device ---
 const loadDeviceList = () => {
@@ -523,13 +522,7 @@ async function connectToWhatsApp(botNumber, bot, chatId) {
   return sheesh;
 }
 
-module.exports = {
-  connectToWhatsApp,
-  initializeWhatsAppConnections,
-  saveActiveSessions,
-  createSessionDir,
-  sessions,
-};
+// (exports moved to end of file)
 
 async function initializeBot() {
   if (config.BOT_TOKEN)
@@ -953,60 +946,6 @@ bot.onText(/\/addprem(.*)/, async (msg, match) => {
 
 
 
-bot.onText(/\/addvip(.*)/, async (msg, match) => {
-  const chatId = msg.chat.id;
-  const senderId = msg.from.id;
-  const params = match[1].trim().split(/\s+/);
-
-  const isGlobalOwner = OWNER_ID.includes(userId.toString());
-  const isLocalOwner = isOwner(userId);
-
-  if (!isGlobalOwner && !isLocalOwner) {
-    return bot.sendMessage(chatId, `❌ Anda tidak memiliki akses`, {
-      parse_mode: "Markdown",
-    });
-  }
-  if (params.length !== 2) {
-    return bot.sendMessage(
-      chatId,
-      "Format salah!\nContoh: /addvip <id> <durasi>\nContoh: /addvip 123456 30d\n┃ Durasi: h=jam, d=hari, w=minggu, m=bulan",
-      { parse_mode: "Markdown" }
-    );
-  }
-
-  const [userId, duration] = params;
-  const durationMs = addVipDuration(duration);
-
-  if (!durationMs) {
-    return bot.sendMessage(
-      chatId,
-      "Format durasi salah!\nGunakan: h=jam, d=hari, w=minggu, m=bulan\nContoh: 30d untuk 30 hari",
-      { parse_mode: "Markdown" }
-    );
-  }
-
-  const vipData = loadVipData();
-  const expiry = Date.now() + durationMs;
-
-  vipData[userId] = {
-    expiry,
-    addedBy: senderId,
-    addedAt: Date.now(),
-  };
-
-  saveVipData(vipData);
-
-  const expiryDate = new Date(expiry).toLocaleString("id-ID", {
-    dateStyle: "full",
-    timeStyle: "short",
-  });
-
-  await bot.sendMessage(
-    chatId,
-    `✅ VIP berhasil ditambahkan:\n🆔 ID: ${userId}\n⏳ Expired: ${expiryDate}`,
-    { parse_mode: "Markdown" }
-  );
-});
 
 bot.onText(/\/delvip (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
@@ -1111,7 +1050,7 @@ bot.onText(/\/delowner (.+)/, async (msg, match) => {
   const userId = msg.from.id;
 
   const isGlobalOwner = OWNER_ID.includes(userId.toString());
-  if (!isGlobalOwner(userId)) {
+  if (!isGlobalOwner) {
     return bot.sendMessage(chatId, "❌ Anda bukan owner.");
   }
   const delId = Number(match[1].trim());
@@ -2047,3 +1986,5 @@ bot.on("callback_query", async (query) => {
 });
 
 // ======[ FUNGSI PLACE ]==============
+
+// exports consolidated at end
